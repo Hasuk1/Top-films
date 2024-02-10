@@ -3,12 +3,15 @@ package com.example.popular_films
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
-import android.net.NetworkInfo
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -19,16 +22,21 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.example.popular_films.ui.theme.Blue
 import com.example.popular_films.ui.theme.PopularFilmsTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : ComponentActivity() {
+  @RequiresApi(Build.VERSION_CODES.M)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
@@ -39,55 +47,73 @@ class MainActivity : ComponentActivity() {
   }
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 fun isNetworkAvailable(context: Context): Boolean {
   val connectivityManager =
     context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-  val activeNetworkInfo: NetworkInfo? = connectivityManager.activeNetworkInfo
-  return activeNetworkInfo?.isConnectedOrConnecting == true
+  val network = connectivityManager.activeNetwork
+  val capabilities = connectivityManager.getNetworkCapabilities(network)
+
+  return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
 fun FilmList(context: Context) {
   val topFilmList by remember {
-    mutableStateOf(mutableStateListOf<FilmCardInfo>())
+    mutableStateOf(mutableStateListOf<FilmInfo>())
   }
-  var ethernetStatus by remember { mutableStateOf("OK") }
-  var isLoading by remember { mutableStateOf(true) }
-  if (isNetworkAvailable(context)) {
-    val kinopoiskApi = Retrofit.Builder().baseUrl("https://kinopoiskapiunofficial.tech")
-      .addConverterFactory(GsonConverterFactory.create()).build().create(KinopoiskApi::class.java)
+  val isNetworkAvailable = isNetworkAvailable(context)
+  val ethernetStatus =
+    remember { mutableStateOf(if (isNetworkAvailable) "OK" else "Нет доступа в интернет") }
+  val isLoading = remember { mutableStateOf(isNetworkAvailable) }
+  val kinopoiskApi = Retrofit.Builder().baseUrl("https://kinopoiskapiunofficial.tech")
+    .addConverterFactory(GsonConverterFactory.create()).build().create(KinopoiskApi::class.java)
+  if (isNetworkAvailable) {
+    DisposableEffect(true) {
+      val job = CoroutineScope(Dispatchers.Main).launch {
 
-    LaunchedEffect(true) {
-      try {
-        val topFilmsResponse = withContext(Dispatchers.IO) {
-          kinopoiskApi.getTopFilms()
+        try {
+          val topFilmsResponse = withContext(Dispatchers.IO) {
+            kinopoiskApi.getTopFilms()
+          }
+          topFilmsResponse.films.let {
+            topFilmList.clear()
+            topFilmList.addAll(it)
+          }
+          isLoading.value = false
+        } catch (e: Exception) {
+          isLoading.value = false
+          ethernetStatus.value = "Ошибка загрузки..."
+          Log.d("MyLog", "ApiLog = $e")
         }
-        topFilmsResponse.films.let {
-          topFilmList.clear()
-          topFilmList.addAll(it)
-        }
-        isLoading = false
-      } catch (e: Exception) {
-        ethernetStatus = "Ошибка загрузки..."
-        Log.d("MyLog", "ApiLog = $e")
-        isLoading = false
+      }
+      onDispose {
+        job.cancel()
       }
     }
-  } else {
-    ethernetStatus = "Нет доступа в интернет"
   }
-
-  if (isLoading) {
-    CircularProgressIndicator(
+  if (isLoading.value) {
+    Column(modifier = Modifier.fillMaxSize()) {
+      Row() {
+        
+      }
+    }
+    Box(
       modifier = Modifier
-        .size(50.dp)
-        .padding(16.dp)
-    )
+        .fillMaxSize()
+        .padding(16.dp), contentAlignment = Alignment.Center
+    ) {
+      CircularProgressIndicator(
+        modifier = Modifier
+          .size(70.dp)
+          .padding(16.dp),
+        color = Blue
+      )
+    }
   } else {
-
-
-    if (ethernetStatus == "OK") {
+    if (ethernetStatus.value == "OK") {
       LazyColumn(
         modifier = Modifier
           .fillMaxSize()
@@ -103,22 +129,44 @@ fun FilmList(context: Context) {
           .fillMaxSize()
           .padding(16.dp), contentAlignment = Alignment.Center
       ) {
-        Text(
-          text = ethernetStatus,
-          fontSize = 20.sp,
-        )
+        Column(
+          modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+          verticalArrangement = Arrangement.Center,
+          horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+          Text(
+            text = ethernetStatus.value,
+            fontSize = 20.sp,
+          )
+          MyButton {
+
+          }
+        }
       }
     }
   }
 }
 
 @Composable
-private fun FilmCard(film: FilmCardInfo) {
+fun MyButton(onClick: () -> Unit) {
+  Button(
+    onClick = { onClick() },
+    colors = ButtonDefaults.buttonColors(Blue)
+  ) {
+    Text(text = "Reload", color = Color.White)
+  }
+}
+
+@Composable
+private fun FilmCard(film: FilmInfo) {
   Card(
     modifier = Modifier
       .fillMaxWidth()
       .height(140.dp)
-      .padding(5.dp),
+      .padding(5.dp)
+      .clickable { },
     shape = RoundedCornerShape(10.dp),
     elevation = 5.dp
   ) {
@@ -139,10 +187,18 @@ private fun FilmCard(film: FilmCardInfo) {
           fontSize = 20.sp,
         )
         Text(
-          text = film.year.toString()
+          text = "${film.genres.toGenreList()} (${film.year})"
         )
       }
     }
   }
+}
 
+fun String.capitalizeFirstLetter(): String {
+  val lowerCaseString = this.lowercase()
+  return "${lowerCaseString.first().uppercaseChar()}${lowerCaseString.substring(1)}"
+}
+
+fun List<Genre>.toGenreList(): String {
+  return joinToString { it.genre.capitalizeFirstLetter() }
 }

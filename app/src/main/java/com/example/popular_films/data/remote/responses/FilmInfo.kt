@@ -1,7 +1,7 @@
 package com.example.popular_films.data.remote.responses
 
 data class FilmInfo(
-  val kinopoiskId: Int,
+  val filmId: Int,
   val nameRu: String,
   val posterUrl: String,
   val posterUrlPreview: String,

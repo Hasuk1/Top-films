@@ -12,7 +12,7 @@ interface KinopoiskApi {
   @Headers("X-API-KEY: 619d3c66-3242-4139-9331-e63292c7e233", "Content-Type: application/json")
   suspend fun getTopFilms(@Query("type") type: String): FilmList
 
-  @GET("films/top/{kinopoiskId}")
+  @GET("films/{kinopoiskId}")
   @Headers("X-API-KEY: 619d3c66-3242-4139-9331-e63292c7e233", "Content-Type: application/json")
   suspend fun getFilmInfo(@Path("kinopoiskId") kinopoiskId: Int): FilmInfo
 }

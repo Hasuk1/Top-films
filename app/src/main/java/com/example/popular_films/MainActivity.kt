@@ -26,8 +26,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberImagePainter
+import com.example.popular_films.data.KinopoiskApi
+import com.example.popular_films.data.remote.responses.FilmInfo
+import com.example.popular_films.data.remote.responses.Genre
 import com.example.popular_films.ui.theme.Blue
 import com.example.popular_films.ui.theme.PopularFilmsTheme
+import com.example.popular_films.utility.Constants.BASE_URL
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -68,15 +72,14 @@ fun FilmList(context: Context) {
   val ethernetStatus =
     remember { mutableStateOf(if (isNetworkAvailable) "OK" else "Нет доступа в интернет") }
   val isLoading = remember { mutableStateOf(isNetworkAvailable) }
-  val kinopoiskApi = Retrofit.Builder().baseUrl("https://kinopoiskapiunofficial.tech")
+  val kinopoiskApi = Retrofit.Builder().baseUrl(BASE_URL)
     .addConverterFactory(GsonConverterFactory.create()).build().create(KinopoiskApi::class.java)
   if (isNetworkAvailable) {
     DisposableEffect(true) {
       val job = CoroutineScope(Dispatchers.Main).launch {
-
         try {
           val topFilmsResponse = withContext(Dispatchers.IO) {
-            kinopoiskApi.getTopFilms()
+            kinopoiskApi.getTopFilms("TOP_100_POPULAR_FILMS")
           }
           topFilmsResponse.films.let {
             topFilmList.clear()
@@ -97,7 +100,7 @@ fun FilmList(context: Context) {
   if (isLoading.value) {
     Column(modifier = Modifier.fillMaxSize()) {
       Row() {
-        
+
       }
     }
     Box(

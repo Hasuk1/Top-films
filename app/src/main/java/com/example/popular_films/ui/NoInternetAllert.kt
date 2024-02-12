@@ -13,12 +13,15 @@ import androidx.compose.ui.unit.sp
 fun NoInternet(ethernetStatus: MutableState<String>) {
   Box(
     modifier = Modifier
-      .fillMaxSize()
-      .padding(16.dp), contentAlignment = Alignment.Center
+      .fillMaxHeight(0.89F)
+      .fillMaxWidth()
+      .padding(16.dp),
+    contentAlignment = Alignment.Center
   ) {
     Column(
       modifier = Modifier
-        .fillMaxSize()
+        .fillMaxHeight(0.8F)
+        .fillMaxWidth()
         .padding(16.dp),
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally,

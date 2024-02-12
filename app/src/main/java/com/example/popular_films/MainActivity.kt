@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.popular_films.screens.FilmDetailScreen
 import com.example.popular_films.screens.FilmListScreen
+import com.example.popular_films.screens.FilmSearchScreen
 import com.example.popular_films.ui.theme.PopularFilmsTheme
 
 class MainActivity : ComponentActivity() {
@@ -30,7 +31,9 @@ class MainActivity : ComponentActivity() {
           composable("PopularFilmListScreen") {
             FilmListScreen(navController, this@MainActivity)
           }
-          composable("PopularFilmSearchScreen") {}
+          composable("FilmSearchScreen") {
+            FilmSearchScreen(navController)
+          }
           composable(
             "FilmDetailScreen/{kinopoiskId}",
             arguments = listOf(navArgument("kinopoiskId") { type = NavType.IntType })

@@ -9,10 +9,10 @@ import retrofit2.http.Query
 
 interface KinopoiskApi {
   @GET("films/top")
-  @Headers("X-API-KEY: 619d3c66-3242-4139-9331-e63292c7e233", "Content-Type: application/json")
-  suspend fun getTopFilms(@Query("type") type: String): FilmList
+  @Headers("X-API-KEY: e30ffed0-76ab-4dd6-b41f-4c9da2b2735b", "Content-Type: application/json")
+  suspend fun getTopFilms(@Query("type") type: String, @Query("page") page: Int): FilmList
 
   @GET("films/{kinopoiskId}")
-  @Headers("X-API-KEY: 619d3c66-3242-4139-9331-e63292c7e233", "Content-Type: application/json")
+  @Headers("X-API-KEY: e30ffed0-76ab-4dd6-b41f-4c9da2b2735b", "Content-Type: application/json")
   suspend fun getFilmInfo(@Path("kinopoiskId") kinopoiskId: Int): FilmInfo
 }

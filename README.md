@@ -3,7 +3,7 @@
 </div>
 
 <div id="paft" align="center">
-  A small application using kinopoisk api to display a list of popular movies and their detailed descriptions 
+  A small application using kinopoisk api to display a list of popular movies and their detailed descriptions<br>
 </div>
 
 <div id="paft" align="center">

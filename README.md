@@ -2,7 +2,9 @@
   <h1>Top films</h1>
 </div>
 
-A small application using kinopoisk api to display a list of popular movies and their detailed descriptions 
+<div id="paft" align="center">
+  A small application using kinopoisk api to display a list of popular movies and their detailed descriptions 
+</div>
 
 <div id="paft" align="center">
   <img width="150" src="misc/FilmList.jpg"></img>

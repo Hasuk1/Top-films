@@ -1,6 +1,8 @@
 <div id="paft" align="center">
-  <h1>Финтех 2024<br>Лабораторная работ<br>Курс Android Developer</h1>
+  <h1>Top films</h1>
 </div>
+
+A small application using kinopoisk api to display a list of popular movies and their detailed descriptions 
 
 <div id="paft" align="center">
   <img width="150" src="misc/FilmList.jpg"></img>
